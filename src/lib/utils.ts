@@ -10,15 +10,6 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-// Função utilitária para combinar classes CSS (shadcn/ui)
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 
 // Configurações do sistema
 export const CONFIG = {
