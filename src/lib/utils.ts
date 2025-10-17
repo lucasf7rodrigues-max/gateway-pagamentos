@@ -9,16 +9,7 @@ import { twMerge } from 'tailwind-merge';
 // Função utilitária para combinar classes CSS (shadcn/ui)
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-}
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-// Função utilitária para combinar classes CSS (shadcn/ui)
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+};
 
 // Configurações do sistema
 export const CONFIG = {
@@ -27,7 +18,7 @@ export const CONFIG = {
   ENCRYPTION_KEY: process.env.ENCRYPTION_KEY || 'your-32-char-encryption-key-here',
   API_VERSION: 'v1',
   SUPPORTED_CURRENCIES: ['BRL', 'USD', 'EUR'],
-  SUPPORTED_PAYMENT_METHODS: ['card', 'pix', 'boleto', 'wallet'],
+  SUPPORTED_PAYMENT_METHODS: ['card', 'pix', 'boleto', 'wallet', 'mercadopago'],
   FRAUD_SCORE_THRESHOLD: 70,
   MAX_TRANSACTION_AMOUNT: 1000000, // R$ 10.000,00 em centavos
   WEBHOOK_TIMEOUT: 30000, // 30 segundos

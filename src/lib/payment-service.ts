@@ -1,4 +1,5 @@
-import { db } from './database';
+import { db, supabase } from './database';
+import { mercadoPagoService } from './mercadopago-service';
 import { CryptoUtils, ValidationUtils, AcquirerSimulator, CONFIG } from './utils';
 import { 
   CreatePaymentRequest, 
@@ -45,7 +46,14 @@ export class PaymentService {
     // Verificar idempotência
     const existingTransaction = await this.findTransactionByIdempotencyKey(request.idempotency_key);
     if (existingTransaction) {
-      return this.formatPaymentResponse(existingTransaction);
+      // Se a transação existente já foi processada, retorna a resposta dela.
+      // Caso contrário, pode ser um erro de idempotência ou uma tentativa de reprocessar.
+      // Para este gateway, vamos retornar a transação existente se ela já tiver um status final.
+      if (["captured", "failed", "cancelled", "refunded"].includes(existingTransaction.status)) {
+        return this.formatPaymentResponse(existingTransaction);
+      } else {
+        throw new Error("Duplicate idempotency key for an ongoing transaction.");
+      }
     }
 
     // Análise de fraude
@@ -76,6 +84,9 @@ export class PaymentService {
         break;
       case 'boleto':
         processResult = await this.processBoletoPayment(transaction, request);
+        break;
+      case 'mercadopago':
+        processResult = await this.processMercadoPagoPayment(transaction, request);
         break;
       default:
         throw new Error('Unsupported payment method');
@@ -298,8 +309,14 @@ export class PaymentService {
 
   // Buscar transação por chave de idempotência
   private async findTransactionByIdempotencyKey(key: string): Promise<Transaction | null> {
-    const { transactions } = await db.listTransactions();
-    return transactions.find(t => t.idempotency_key === key) || null;
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .eq("idempotency_key", key)
+      .single();
+
+    if (error && error.code !== "PGRST116") throw error;
+    return data as Transaction | null;
   }
 
   // Formatar resposta de pagamento
@@ -359,7 +376,14 @@ export class PaymentService {
       console.error('Webhook delivery failed:', error);
     }
   }
-}
+
+  // Processar pagamento Mercado Pago
+  private async processMercadoPagoPayment(transaction: Transaction, request: CreatePaymentRequest): Promise<any> {
+    if (!request.payment_method.mercadopago_data) {
+      throw new Error('Mercado Pago data is required for Mercado Pago payments');
+    }
+    return await mercadoPagoService.createPayment(transaction, request);
+  }
 
   // Listar transações
   async listTransactions(merchantId?: string, page: number = 1, limit: number = 10) {

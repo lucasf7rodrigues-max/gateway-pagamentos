@@ -22,7 +22,7 @@ export interface Account {
 }
 
 export interface PaymentMethod {
-  type: 'card' | 'pix' | 'boleto' | 'wallet';
+  type: 'card' | 'pix' | 'boleto' | 'wallet' | 'mercadopago';
   token?: string;
   card_data?: {
     number: string;
@@ -34,6 +34,13 @@ export interface PaymentMethod {
   pix_data?: {
     key?: string;
     key_type?: 'cpf' | 'cnpj' | 'email' | 'phone' | 'random';
+  };
+  mercadopago_data?: {
+    token?: string; // Token gerado pelo SDK do Mercado Pago
+    installments?: number;
+    issuer_id?: string;
+    payment_method_id?: string;
+    // Outros dados específicos do Mercado Pago, se necessário
   };
 }
 
@@ -99,6 +106,11 @@ export interface CreatePaymentRequest {
   capture?: boolean;
   metadata?: Record<string, any>;
   idempotency_key: string;
+  customer?: {
+    email: string;
+    name?: string;
+    document?: string;
+  };
 }
 
 export interface CreatePaymentResponse {
