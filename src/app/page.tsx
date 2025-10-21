@@ -521,7 +521,7 @@ import {
   Subway,
   Tram,
   Monorail,
-  Cable,
+  Cable as CableCar,
   Gondola,
   Helicopter,
   Plane as PlaneIcon,
